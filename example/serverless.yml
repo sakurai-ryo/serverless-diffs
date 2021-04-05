@@ -5,10 +5,10 @@ provider:
   runtime: nodejs10.x
 
 plugins:
-  localPath: '../../'
+  localPath: './'
   modules:
     - typescript_serverless_plugin_sample
 
 functions:
   hello:
-    handler: function/index.hello
+    handler: handler.hello
