@@ -3,7 +3,13 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
+    "strict": true,
     "strictBindCallApply": false,
-    "outDir": "dist"
-  }
+    "strictNullChecks": false,
+    "outDir": "dist",
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

@@ -26,3 +26,4 @@ class Plugin {
 }
 exports.default = Plugin;
 module.exports = Plugin;
+//# sourceMappingURL=index.js.map

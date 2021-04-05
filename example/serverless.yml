@@ -1,4 +1,4 @@
-service: PluginTest
+service: test
 
 provider:
   name: aws
@@ -7,7 +7,7 @@ provider:
 plugins:
   localPath: '../../'
   modules:
-    - typescript_serverless_plugin_sample
+    - serverless-diffs
 
 functions:
   hello:
