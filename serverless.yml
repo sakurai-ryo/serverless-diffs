@@ -1,0 +1,14 @@
+service: PluginTest
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+plugins:
+  localPath: '../'
+  modules:
+    - typescript_serverless_plugin_sample
+
+functions:
+  hello:
+    handler: handler.hello
