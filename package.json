@@ -13,5 +13,8 @@
     "@types/node": "^12.7.8",
     "@types/serverless": "^1.18.2",
     "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "serverless": "^2.33.1"
   }
 }
