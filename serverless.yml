@@ -5,9 +5,9 @@ provider:
   runtime: nodejs12.x
 
 plugins:
-  localPath: './dist'
-  # modules:
-  #   - typescript_serverless_plugin_sample
+  localPath: '../../'
+  modules:
+    - typescript_serverless_plugin_sample
 
 functions:
   hello:
