@@ -11,4 +11,4 @@ plugins:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: index.hello
