@@ -17,6 +17,6 @@
     "typescript": "^3.6.3"
   },
   "dependencies": {
-    "serverless": "^2.33.1"
+    "serverless": "1.48.2"
   }
 }

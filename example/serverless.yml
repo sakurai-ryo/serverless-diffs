@@ -5,7 +5,7 @@ provider:
   runtime: nodejs10.x
 
 plugins:
-  localPath: '.'
+  localPath: '../../'
   modules:
     - typescript_serverless_plugin_sample
 
