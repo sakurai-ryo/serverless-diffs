@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const readline = require("readline");
 class Plugin {
     constructor(serverless, options) {
         this.serverless = serverless;
@@ -20,6 +21,20 @@ class Plugin {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
+            const repl = () => __awaiter(this, void 0, void 0, function* () {
+                const rl = readline.createInterface({
+                    input: process.stdin,
+                    output: process.stdout,
+                });
+                return new Promise((resolve) => {
+                    rl.question("Please enter names for your project: ", (answer) => {
+                        console.log(`Thank you!! Let's start ${answer}`);
+                        rl.close();
+                        resolve();
+                    });
+                });
+            });
+            yield repl();
             this.serverless.cli.log("=== sample log ===");
         });
     }
