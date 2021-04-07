@@ -17,6 +17,7 @@
     "typescript": "^3.6.3"
   },
   "dependencies": {
+    "@aws-cdk/cloudformation-diff": "^1.97.0",
     "serverless": "^2.33.1"
   }
 }
