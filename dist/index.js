@@ -42,31 +42,22 @@ class Plugin {
         this.cf = new AWS.CloudFormation({
             region: this.region,
         });
+        this.commands = {
+            diffs: {
+                usage: "Show Cfn template diffs like SAM or CDK",
+                lifecycleEvents: ["diffs"],
+            },
+        };
         this.hooks = {
-            // "after:package:createDeploymentArtifacts": this.run.bind(this),
-            "before:deploy:deploy": this.run.bind(this),
+            "diffs:diffs": this.run.bind(this),
         };
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            const oldTemp = yield this.getOldTemplate();
-            const newTemp = this.getNewTemplate();
+            const oldTemp = yield this.getOldTemplate(this.stackName);
+            const newTemp = yield this.getNewTemplate("./.serverless/cloudformation-template-update-stack.json");
             this.serverless.cli.log("=== sample log ===");
-            console.log("Stack: ", this.stackName);
-            const structDatas = [
-                {
-                    handler: "http",
-                    endpoint: "http://localhost:3000/path",
-                    method: "ALL",
-                },
-                {
-                    handler: "event",
-                    endpoint: "http://localhost:3000/event",
-                    method: "POST",
-                },
-                { handler: "GCS", endpoint: "http://localhost:3000/GCS", method: "POST" },
-            ];
-            console.table(structDatas);
+            this.serverless.cli.log(this.stackName);
             this.calcDiffs(oldTemp, newTemp);
         });
     }
@@ -85,19 +76,23 @@ class Plugin {
         else
             return true;
     }
-    getOldTemplate() {
+    getOldTemplate(stackName) {
         return __awaiter(this, void 0, void 0, function* () {
             const temp = yield this.cf
                 .getTemplate({
-                StackName: this.stackName,
-                TemplateStage: "Processed",
+                StackName: stackName,
             })
                 .promise();
+            this.serverless.cli.log(temp.TemplateBody);
             return JSON.parse(temp.TemplateBody);
         });
     }
-    getNewTemplate() {
-        return JSON.parse(fs.readFileSync("./.serverless/cloudformation-template-update-stack.json", "utf8"));
+    getNewTemplate(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const temp = yield fs.promises.readFile(path, "utf8");
+            this.serverless.cli.log(temp);
+            return JSON.parse(temp);
+        });
     }
     calcDiffs(oldTemp, newTemp) {
         const diffs = diff.diffTemplate(oldTemp, newTemp);
@@ -108,6 +103,5 @@ class Plugin {
         });
     }
 }
-exports.default = Plugin;
 module.exports = Plugin;
 //# sourceMappingURL=index.js.map
