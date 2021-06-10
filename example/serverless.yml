@@ -3,6 +3,7 @@ service: test
 provider:
   name: aws
   runtime: nodejs10.x
+  region: ap-northeast-1
 
 plugins:
   localPath: '../../'
@@ -12,3 +13,10 @@ plugins:
 functions:
   hello:
     handler: handler.hello
+    # timeout: 20
+    memory: 1020
+
+  world:
+    handler: handler.hello
+    # timeout: 20
+    memory: 1020

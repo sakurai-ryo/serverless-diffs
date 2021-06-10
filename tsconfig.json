@@ -7,7 +7,8 @@
     "strictBindCallApply": false,
     "strictNullChecks": false,
     "outDir": "dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*"
