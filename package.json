@@ -19,7 +19,6 @@
   "dependencies": {
     "@aws-cdk/cloudformation-diff": "^1.97.0",
     "aws-sdk": "^2.884.0",
-    "serverless": "^2.33.1",
-    "yesno": "^0.3.1"
+    "serverless": "^2.33.1"
   }
 }

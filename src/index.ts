@@ -46,10 +46,10 @@ class Plugin {
 
   public async run() {
     const oldTemp = await this.getOldTemplate(this.stackName);
-    const newTemp = await this.getNewTemplate(
-      "./.serverless/cloudformation-template-update-stack.json"
-    );
-    this.serverless.cli.log("=== sample log ===");
+    const fp = this.isFirstDeploy()
+      ? "./.serverless/cloudformation-template-create-stack.json"
+      : "./.serverless/cloudformation-template-update-stack.json";
+    const newTemp = await this.getNewTemplate(fp);
     this.serverless.cli.log(this.stackName);
     this.calcDiffs(oldTemp, newTemp);
   }
@@ -67,26 +67,17 @@ class Plugin {
         StackName: stackName,
       })
       .promise();
-    this.serverless.cli.log(temp.TemplateBody);
     return JSON.parse(temp.TemplateBody);
   }
 
   private async getNewTemplate(path: string): Promise<Template> {
     const temp = await fs.promises.readFile(path, "utf8");
-    this.serverless.cli.log(temp);
     return JSON.parse(temp);
   }
 
   private calcDiffs(oldTemp: Template, newTemp: Template) {
     const diffs = diff.diffTemplate(oldTemp, newTemp);
-    Object.keys(diffs.resources.changes).forEach((key) => {
-      Object.keys(diffs.resources.changes[key].propertyUpdates).forEach((k) => {
-        console.log(
-          `${key}: `,
-          diffs.resources.changes[key].propertyUpdates[k]
-        );
-      });
-    });
+    diff.formatDifferences(process.stdout, diffs);
   }
 }
 

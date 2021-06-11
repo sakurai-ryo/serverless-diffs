@@ -29,7 +29,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
-// import * as yesno from "yesno";
 const AWS = __importStar(require("aws-sdk"));
 const diff = __importStar(require("@aws-cdk/cloudformation-diff"));
 class Plugin {
@@ -55,20 +54,14 @@ class Plugin {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             const oldTemp = yield this.getOldTemplate(this.stackName);
-            const newTemp = yield this.getNewTemplate("./.serverless/cloudformation-template-update-stack.json");
-            this.serverless.cli.log("=== sample log ===");
+            const fp = this.isFirstDeploy()
+                ? "./.serverless/cloudformation-template-create-stack.json"
+                : "./.serverless/cloudformation-template-update-stack.json";
+            const newTemp = yield this.getNewTemplate(fp);
             this.serverless.cli.log(this.stackName);
             this.calcDiffs(oldTemp, newTemp);
         });
     }
-    // private async repl(): Promise<boolean> {
-    //   const ok = await yesno({
-    //     question: "Dude, Is this groovy or what?",
-    //     yesValues: ["Y"],
-    //     noValues: ["N"],
-    //   });
-    //   return ok;
-    // }
     isFirstDeploy() {
         const files = fs.readdirSync("./.serverless");
         if (files.includes("cloudformation-template-update-stack.json"))
@@ -83,24 +76,18 @@ class Plugin {
                 StackName: stackName,
             })
                 .promise();
-            this.serverless.cli.log(temp.TemplateBody);
             return JSON.parse(temp.TemplateBody);
         });
     }
     getNewTemplate(path) {
         return __awaiter(this, void 0, void 0, function* () {
             const temp = yield fs.promises.readFile(path, "utf8");
-            this.serverless.cli.log(temp);
             return JSON.parse(temp);
         });
     }
     calcDiffs(oldTemp, newTemp) {
         const diffs = diff.diffTemplate(oldTemp, newTemp);
-        Object.keys(diffs.resources.changes).forEach((key) => {
-            Object.keys(diffs.resources.changes[key].propertyUpdates).forEach((k) => {
-                console.log(`${key}: `, diffs.resources.changes[key].propertyUpdates[k]);
-            });
-        });
+        diff.formatDifferences(process.stderr, diffs);
     }
 }
 module.exports = Plugin;
