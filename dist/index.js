@@ -31,6 +31,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const AWS = __importStar(require("aws-sdk"));
 const diff = __importStar(require("@aws-cdk/cloudformation-diff"));
+const child_process_1 = require("child_process");
 class Plugin {
     constructor(serverless, options) {
         this.serverless = serverless;
@@ -53,6 +54,8 @@ class Plugin {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
+            const stdout = child_process_1.execSync("sls package");
+            this.serverless.cli.log(stdout.toString());
             const oldTemp = yield this.getOldTemplate(this.stackName);
             const fp = this.isFirstDeploy()
                 ? "./.serverless/cloudformation-template-create-stack.json"
@@ -87,7 +90,7 @@ class Plugin {
     }
     calcDiffs(oldTemp, newTemp) {
         const diffs = diff.diffTemplate(oldTemp, newTemp);
-        diff.formatDifferences(process.stderr, diffs);
+        diff.formatDifferences(process.stdout, diffs);
     }
 }
 module.exports = Plugin;

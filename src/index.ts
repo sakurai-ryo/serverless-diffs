@@ -3,6 +3,7 @@ import * as Serverless from "serverless";
 import * as fs from "fs";
 import * as AWS from "aws-sdk";
 import * as diff from "@aws-cdk/cloudformation-diff";
+import { execSync } from "child_process";
 
 type Template = {
   AWSTemplateFormatVersion: string;
@@ -45,6 +46,9 @@ class Plugin {
   }
 
   public async run() {
+    const stdout = execSync("sls package");
+    this.serverless.cli.log(stdout.toString());
+
     const oldTemp = await this.getOldTemplate(this.stackName);
     const fp = this.isFirstDeploy()
       ? "./.serverless/cloudformation-template-create-stack.json"
