@@ -14,9 +14,3 @@ functions:
   hello:
     handler: handler.hello
     timeout: 20
-    # memory: 900
-
-  # world:
-  #   handler: handler.hello
-  #   timeout: 20
-    # memory: 360
