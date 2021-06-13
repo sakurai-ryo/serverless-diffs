@@ -1,8 +1,8 @@
 import * as Serverless from "serverless";
 
-import * as fs from "fs";
-import * as AWS from "aws-sdk";
-import * as diff from "@aws-cdk/cloudformation-diff";
+import { promises } from "fs";
+import { CloudFormation } from "aws-sdk";
+import { diffTemplate, formatDifferences } from "@aws-cdk/cloudformation-diff";
 import { execSync } from "child_process";
 
 type Template = {
@@ -19,7 +19,7 @@ class Plugin {
     [event: string]: Promise<any>;
   };
   public commands: {};
-  private cf: AWS.CloudFormation;
+  private cf: CloudFormation;
   private region: string;
   private stage: string;
   private stackName: string;
@@ -30,7 +30,7 @@ class Plugin {
     this.region = options.region || this.serverless.service.provider.region;
     this.stage = options.stage || this.serverless.service.provider.stage;
     this.stackName = `${this.serverless.service.service}-${this.stage}`;
-    this.cf = new AWS.CloudFormation({
+    this.cf = new CloudFormation({
       region: this.region,
     });
 
@@ -50,7 +50,7 @@ class Plugin {
     this.serverless.cli.log(stdout.toString());
 
     const oldTemp = await this.getOldTemplate(this.stackName);
-    const fp = this.isFirstDeploy()
+    const fp = (await this.isFirstDeploy())
       ? "./.serverless/cloudformation-template-create-stack.json"
       : "./.serverless/cloudformation-template-update-stack.json";
     const newTemp = await this.getNewTemplate(fp);
@@ -58,8 +58,8 @@ class Plugin {
     this.calcDiffs(oldTemp, newTemp);
   }
 
-  private isFirstDeploy(): boolean {
-    const files = fs.readdirSync("./.serverless");
+  private async isFirstDeploy(): Promise<boolean> {
+    const files = await promises.readdir("./.serverless");
     if (files.includes("cloudformation-template-update-stack.json"))
       return false;
     else return true;
@@ -75,13 +75,13 @@ class Plugin {
   }
 
   private async getNewTemplate(path: string): Promise<Template> {
-    const temp = await fs.promises.readFile(path, "utf8");
+    const temp = await promises.readFile(path, "utf8");
     return JSON.parse(temp);
   }
 
   private calcDiffs(oldTemp: Template, newTemp: Template) {
-    const diffs = diff.diffTemplate(oldTemp, newTemp);
-    diff.formatDifferences(process.stdout, diffs);
+    const diffs = diffTemplate(oldTemp, newTemp);
+    formatDifferences(process.stdout, diffs);
   }
 }
 
