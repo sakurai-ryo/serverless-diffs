@@ -38,6 +38,11 @@ class Plugin {
       diffs: {
         usage: "Show Cfn template diffs like SAM or CDK",
         lifecycleEvents: ["diffs"],
+        options: {
+          profile: {
+            required: true,
+          },
+        },
       },
     };
     this.hooks = {
@@ -46,7 +51,9 @@ class Plugin {
   }
 
   public async run() {
-    const stdout = execSync("sls package");
+    const stdout = execSync(
+      `sls package --stage ${this.stage} --profile ${this.option.region} --region ${this.region}`
+    );
     this.serverless.cli.log(stdout.toString());
 
     const oldTemp = await this.getOldTemplate(this.stackName);
