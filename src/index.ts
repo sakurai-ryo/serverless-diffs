@@ -3,7 +3,7 @@ import * as Serverless from "serverless";
 import { promises } from "fs";
 import { CloudFormation } from "aws-sdk";
 import { diffTemplate, formatDifferences } from "@aws-cdk/cloudformation-diff";
-import { execSync } from "child_process";
+import { spawn } from "child_process";
 
 type Template = {
   AWSTemplateFormatVersion: string;
@@ -51,10 +51,11 @@ class Plugin {
   }
 
   public async run() {
-    const stdout = execSync(
-      `sls package --stage ${this.stage} --profile ${this.option.region} --region ${this.region}`
-    );
-    this.serverless.cli.log(stdout.toString());
+    // const stdout = execSync(
+    //   `sls package --stage ${this.stage} --profile ${this.option.region} --region ${this.region}`
+    // );
+    // this.serverless.cli.log(stdout.toString());
+    await this.exec();
 
     const oldTemp = await this.getOldTemplate(this.stackName);
     const fp = (await this.isFirstDeploy())
@@ -63,6 +64,31 @@ class Plugin {
     const newTemp = await this.getNewTemplate(fp);
     this.serverless.cli.log(this.stackName);
     this.calcDiffs(oldTemp, newTemp);
+  }
+
+  private async exec() {
+    return new Promise((resolve, reject) => {
+      const res = spawn("sls", [
+        "package",
+        "--stage",
+        this.stage,
+        "--profile",
+        (this.option as any).profile,
+        "--region",
+        this.region,
+      ]);
+
+      res.on("data", (data) => {
+        this.serverless.cli.log(data.toString());
+      });
+      res.on("close", () => {
+        resolve();
+      });
+
+      res.on("error", (err) => {
+        reject(err);
+      });
+    });
   }
 
   private async isFirstDeploy(): Promise<boolean> {
