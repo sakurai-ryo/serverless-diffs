@@ -12,6 +12,10 @@ type Template = {
   Outputs: any;
 };
 
+type Variables = {
+  stackName: string;
+};
+
 class Plugin {
   public serverless: Serverless;
   public option: Serverless.Options;
@@ -19,6 +23,7 @@ class Plugin {
     [event: string]: Promise<any>;
   };
   public commands: {};
+  public variables: Variables;
   private cf: CloudFormation;
   private region: string;
   private stage: string;
@@ -29,10 +34,12 @@ class Plugin {
     this.option = options;
     this.region = options.region || this.serverless.service.provider.region;
     this.stage = options.stage || this.serverless.service.provider.stage;
-    this.stackName = `${this.serverless.service.service}-${this.stage}`;
+    this.variables = serverless.service.custom["serverless-diffs"];
+    this.stackName = this.variables?.stackName;
     this.cf = new CloudFormation({
       region: this.region,
     });
+    this.validateParam();
 
     this.commands = {
       diffs: {
@@ -51,10 +58,6 @@ class Plugin {
   }
 
   public async run() {
-    // const stdout = execSync(
-    //   `sls package --stage ${this.stage} --profile ${this.option.region} --region ${this.region}`
-    // );
-    // this.serverless.cli.log(stdout.toString());
     await this.exec();
 
     const oldTemp = await this.getOldTemplate(this.stackName);
@@ -64,6 +67,11 @@ class Plugin {
     const newTemp = await this.getNewTemplate(fp);
     this.serverless.cli.log(this.stackName);
     this.calcDiffs(oldTemp, newTemp);
+  }
+
+  private validateParam() {
+    if (!this.variables || !this.variables.stackName)
+      throw new Error("Custom Info Is not Provided. Please Add Custom Block.");
   }
 
   private async exec() {
@@ -82,7 +90,7 @@ class Plugin {
         this.serverless.cli.log(data.toString());
       });
       res.on("close", () => {
-        resolve();
+        resolve(true);
       });
 
       res.on("error", (err) => {
