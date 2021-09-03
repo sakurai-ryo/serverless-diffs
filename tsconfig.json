@@ -6,7 +6,7 @@
     "strict": true,
     "strictBindCallApply": false,
     "strictNullChecks": false,
-    "outDir": "dist",
+    "rootDir": "./",
     "sourceMap": true,
     "esModuleInterop": true
   },
