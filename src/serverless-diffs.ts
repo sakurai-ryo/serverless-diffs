@@ -101,9 +101,7 @@ class Plugin {
 
   private async isFirstDeploy(): Promise<boolean> {
     const files = await promises.readdir("./.serverless");
-    if (files.includes("cloudformation-template-update-stack.json"))
-      return false;
-    else return true;
+    return files.includes("cloudformation-template-update-stack.json");
   }
 
   private async getOldTemplate(stackName: string): Promise<Template> {
